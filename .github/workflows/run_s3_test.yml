@@ -1,0 +1,82 @@
+name: Terragrunt and Terratest
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test Terragrunt Configuration
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.20'
+        
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: '1.5.7'
+        
+    - name: Install Terragrunt
+      run: |
+        TERRAGRUNT_VERSION=v0.53.2
+        wget -q https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_VERSION}/terragrunt_linux_amd64 -O /tmp/terragrunt
+        chmod +x /tmp/terragrunt
+        sudo mv /tmp/terragrunt /usr/local/bin/terragrunt
+        terragrunt --version
+        
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        aws-region: us-east-1
+        
+    - name: Create Mock Log Bucket Module
+      run: |
+        mkdir -p terragrunt/environments/dev/log-bucket
+        cat > terragrunt/environments/dev/log-bucket/terragrunt.hcl << EOF
+        include {
+          path = find_in_parent_folders()
+        }
+        
+        # This is just a mock module to satisfy dependency
+        # It will not actually be applied in testing
+        EOF
+        
+    - name: Validate Terraform module
+      run: |
+        cd terraform/modules/s3-bucket
+        terraform init -backend=false
+        terraform validate
+        
+    - name: Install Go dependencies
+      run: |
+        cd test
+        go mod init github.com/yourusername/terraform-s3-bucket-test
+        go mod tidy
+        go get github.com/gruntwork-io/terratest/modules/terraform
+        go get github.com/gruntwork-io/terratest/modules/terragrunt
+        go get github.com/gruntwork-io/terratest/modules/aws
+        go get github.com/stretchr/testify/assert
+        go get github.com/stretchr/testify/require
+        go get github.com/aws/aws-sdk-go
+        
+    - name: Run Terratest
+      run: |
+        cd test
+        # Set environment variables to control terragrunt behavior
+        export AWS_REGION=us-east-1
+        export TG_VAR_environment=testenv
+        export AWS_SDK_LOAD_CONFIG=1
+        go test -v -timeout 30m ./...
