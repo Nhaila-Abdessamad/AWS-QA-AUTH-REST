@@ -1,0 +1,1 @@
+# AWS-QA-AUTH-REST
