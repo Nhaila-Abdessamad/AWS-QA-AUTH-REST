@@ -33,7 +33,7 @@ func TestTerragruntS3Bucket(t *testing.T) {
 		},
 		// Just set the critical variables, use existing tfvars for the rest
 		Vars: map[string]interface{}{
-			"bucket_prefix": bucketPrefix,
+			"bucket_name": fmt.Sprintf("%s-%s", bucketPrefix, random.UniqueId()),
 			"owner": "terratest",
 		},
 	})
