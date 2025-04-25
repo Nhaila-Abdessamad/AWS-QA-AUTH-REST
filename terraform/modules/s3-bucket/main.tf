@@ -71,6 +71,7 @@ resource "aws_s3_bucket_policy" "secure_policy" {
   })
 }
 
+
 # Enable bucket logging if configured
 resource "aws_s3_bucket_logging" "logging" {
   count         = var.enable_logging && var.logging_target_bucket != "" ? 1 : 0
