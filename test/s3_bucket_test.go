@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"testing"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -15,16 +16,13 @@ import (
 func TestTerragruntS3Bucket(t *testing.T) {
 	t.Parallel()
 
-	// Generate a random bucket prefix to avoid naming conflicts
-	uniqueID := random.UniqueId()
-	
+	// Create a valid S3 bucket name: lowercase, no underscores, between 3-63 chars
+	bucketName := fmt.Sprintf("terratest-s3-%s", strings.ToLower(random.UniqueId()))
+
 	// Set the working directory to the terragrunt S3 module
 	// Adjust this path to match your actual project structure
 	terragruntDir := "../terragrunt/environments/dev/s3-bucket"
     
-	// Create a valid S3 bucket name: lowercase, no underscores, between 3-63 chars
-	bucketName := fmt.Sprintf("terratest-s3-%s", strings.ToLower(random.UniqueId()))
-
 	// Set up Terraform options but use terragrunt as the binary
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: terragruntDir,
