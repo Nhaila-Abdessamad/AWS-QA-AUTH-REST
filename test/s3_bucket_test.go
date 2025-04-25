@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/gruntwork-io/terratest/modules/aws"
+	awsTest "github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
@@ -48,7 +48,7 @@ func TestTerragruntS3Bucket(t *testing.T) {
 	bucketID := terraform.Output(t, terraformOptions, "bucket_id")
 	
 	// Get the AWS region
-	awsRegion := aws.GetRegion(t)
+	awsRegion := "us-east-1" // Using hardcoded region instead of aws.GetRegion()
 
 	// Create an AWS session
 	awsSession, err := session.NewSession(&aws.Config{
@@ -62,7 +62,11 @@ func TestTerragruntS3Bucket(t *testing.T) {
 
 	// Test 1: Verify that the S3 bucket exists
 	t.Run("BucketExists", func(t *testing.T) {
-		aws.AssertS3BucketExists(t, awsRegion, bucketID)
+		// Using a direct check instead of aws.AssertS3BucketExists
+		_, err := s3Client.HeadBucket(&s3.HeadBucketInput{
+			Bucket: aws.String(bucketID),
+		})
+		assert.NoError(t, err, "S3 bucket should exist: %s", bucketID)
 	})
 
 	// Test 2: Verify that the S3 bucket has encryption enabled
