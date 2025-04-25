@@ -301,25 +301,12 @@ Common issues and solutions:
 
 1. **AWS Credential Issues**:
    - Ensure AWS credentials are properly configured
-   - Check AWS profile settings
 
 2. **Terragrunt Dependency Errors**:
    - Verify mock outputs for dependencies
    - Ensure dependency paths are correct
 
-3. **Test Failures**:
-   - Check AWS region consistency
-   - Verify unique bucket names
-   - Ensure sufficient permissions
-
 4. **CI Pipeline Failures**:
    - Check GitHub secrets for AWS credentials
    - Verify timeout settings for longer tests
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
