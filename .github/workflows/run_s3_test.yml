@@ -1,4 +1,4 @@
-name: Terragrunt and Terratest
+name: Terraform S3 Module Testing
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Test Terragrunt Configuration
+    name: Test S3 Bucket Module
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -43,48 +43,7 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
         
-    # Setup project structure to match expectations in the test
-    - name: Setup proper directory structure
-      run: |
-        # Create the necessary directory structure
-        mkdir -p terraform/modules/s3-bucket
-        mkdir -p terragrunt/environments/dev/s3-bucket
-        mkdir -p terragrunt/environments/dev/log-bucket
-        
-        # Copy files to the proper locations
-        cp main.tf terraform/modules/s3-bucket/
-        cp variables.tf terraform/modules/s3-bucket/
-        cp outputs.tf terraform/modules/s3-bucket/
-        
-        # Setup terragrunt files
-        cp terragrunt.hcl terragrunt/environments/dev/s3-bucket/
-        cp terraform.tfvars terragrunt/environments/dev/s3-bucket/
-        
-        # Create the parent terragrunt.hcl file
-        cat > terragrunt/terragrunt.hcl << EOF
-        # This is the parent terragrunt configuration
-        remote_state {
-          backend = "local"
-          config = {
-            path = "\${path_relative_to_include()}/terraform.tfstate"
-          }
-        }
-        EOF
-        
-        # Copy to root of terragrunt directory
-        cp terragrunt/terragrunt.hcl terragrunt/environments/dev/
-        
-        # Create basic log bucket configuration
-        cat > terragrunt/environments/dev/log-bucket/terragrunt.hcl << EOF
-        include {
-          path = find_in_parent_folders()
-        }
-        
-        # This is just a mock module to satisfy dependency
-        # It will not actually be applied in testing
-        EOF
-        
-    - name: Validate Terraform module
+    - name: Validate Terraform Module
       run: |
         cd terraform/modules/s3-bucket
         terraform init -backend=false
@@ -93,19 +52,17 @@ jobs:
     - name: Install Go dependencies
       run: |
         cd test
-        go mod init github.com/yourusername/terraform-s3-bucket-test
+        go mod init github.com/nhaila-abdessamad/terraform-s3-bucket-test
         go get github.com/gruntwork-io/terratest@v0.46.0
         go get github.com/gruntwork-io/terratest/modules/terraform@v0.46.0
         go get github.com/gruntwork-io/terratest/modules/random@v0.46.0
         go get github.com/stretchr/testify/assert@v1.8.4
-        go get github.com/stretchr/testify/require@v1.8.4
         go get github.com/aws/aws-sdk-go@v1.45.15
         go mod tidy
         
     - name: Run Terratest
       run: |
         cd test
-        # Set environment variables to control terragrunt behavior
         export AWS_REGION=us-east-1
         export TG_VAR_environment=testenv
         export AWS_SDK_LOAD_CONFIG=1
