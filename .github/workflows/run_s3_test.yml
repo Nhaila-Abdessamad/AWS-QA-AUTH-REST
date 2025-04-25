@@ -64,7 +64,7 @@ jobs:
     - name: Install Go dependencies
       run: |
         cd test
-        go mod init github.com/yourusername/terraform-s3-bucket-test
+        go mod init github.com/nhaila-abdessamad/terraform-s3-bucket-test
         go get github.com/gruntwork-io/terratest@v0.46.0
         go get github.com/gruntwork-io/terratest/modules/terraform@v0.46.0
         go get github.com/gruntwork-io/terratest/modules/aws@v0.46.0
