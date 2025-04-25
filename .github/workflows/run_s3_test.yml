@@ -39,8 +39,7 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
         aws-region: us-east-1
         
     - name: Create Mock Log Bucket Module
@@ -65,13 +64,14 @@ jobs:
       run: |
         cd test
         go mod init github.com/yourusername/terraform-s3-bucket-test
+        go get github.com/gruntwork-io/terratest@v0.46.0
+        go get github.com/gruntwork-io/terratest/modules/terraform@v0.46.0
+        go get github.com/gruntwork-io/terratest/modules/aws@v0.46.0
+        go get github.com/gruntwork-io/terratest/modules/random@v0.46.0
+        go get github.com/stretchr/testify/assert@v1.8.4
+        go get github.com/stretchr/testify/require@v1.8.4
+        go get github.com/aws/aws-sdk-go@v1.45.15
         go mod tidy
-        go get github.com/gruntwork-io/terratest/modules/terraform
-        go get github.com/gruntwork-io/terratest/modules/terragrunt
-        go get github.com/gruntwork-io/terratest/modules/aws
-        go get github.com/stretchr/testify/assert
-        go get github.com/stretchr/testify/require
-        go get github.com/aws/aws-sdk-go
         
     - name: Run Terratest
       run: |

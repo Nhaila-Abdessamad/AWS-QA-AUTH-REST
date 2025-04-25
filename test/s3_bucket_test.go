@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/random"
-	"github.com/gruntwork-io/terratest/modules/terragrunt"
+	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,8 +23,8 @@ func TestTerragruntS3Bucket(t *testing.T) {
 	// Set the working directory to the terragrunt S3 module
 	terragruntDir := "../terragrunt/environments/dev/s3"
 
-	// Set up Terragrunt options
-	terragruntOptions := terragrunt.WithDefaultRetryableErrors(t, &terragrunt.Options{
+	// Set up Terraform options but use terragrunt as the binary
+	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: terragruntDir,
 		TerraformBinary: "terragrunt",
 		EnvVars: map[string]string{
@@ -39,13 +39,13 @@ func TestTerragruntS3Bucket(t *testing.T) {
 	})
 
 	// At the end of the test, run `terragrunt destroy`
-	defer terragrunt.Destroy(t, terragruntOptions)
+	defer terraform.Destroy(t, terraformOptions)
 
 	// Run `terragrunt init` and `terragrunt apply`
-	terragrunt.InitAndApply(t, terragruntOptions)
+	terraform.InitAndApply(t, terraformOptions)
 	
 	// Get the bucket name from the outputs
-	bucketID := terragrunt.Output(t, terragruntOptions, "bucket_id")
+	bucketID := terraform.Output(t, terraformOptions, "bucket_id")
 	
 	// Get the AWS region
 	awsRegion := aws.GetRegion(t)
