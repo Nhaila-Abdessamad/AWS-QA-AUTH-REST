@@ -89,6 +89,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle_rules" {
     content {
       id     = rule.value.id
       status = rule.value.status
+      
+      filter {
+        prefix = try(rule.value.prefix, "")
+      }
 
       dynamic "transition" {
         for_each = rule.value.transitions != null ? rule.value.transitions : []

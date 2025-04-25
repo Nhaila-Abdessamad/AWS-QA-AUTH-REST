@@ -35,6 +35,7 @@ func TestTerragruntS3Bucket(t *testing.T) {
 		Vars: map[string]interface{}{
 			"bucket_name": bucketName,
 			"owner": "terratest",
+			"enable_logging": false,  // Disable logging for tests
 		},
 	})
 

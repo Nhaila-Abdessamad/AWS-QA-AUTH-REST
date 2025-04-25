@@ -56,6 +56,7 @@ variable "lifecycle_rules" {
   type = list(object({
     id     = string
     status = string
+    prefix = optional(string)
     transitions = optional(list(object({
       days          = number
       storage_class = string
