@@ -5,7 +5,7 @@ include {
 # This is just a mock module to satisfy the dependency
 # It will not actually be applied during testing
 terraform {
-  source = "../../../terraform/modules/s3-bucket"
+  source = "../../../../terraform/modules/s3-bucket"
 }
 
 inputs = {

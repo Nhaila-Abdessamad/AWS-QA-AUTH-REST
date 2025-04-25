@@ -3,7 +3,7 @@ include {
 }
 
 terraform {
-  source = "../../../terraform/modules/s3-bucket"
+  source = "../../../../terraform/modules/s3-bucket"
 }
 
 dependency "log_bucket" {
