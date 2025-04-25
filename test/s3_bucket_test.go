@@ -22,7 +22,10 @@ func TestTerragruntS3Bucket(t *testing.T) {
 	// Set the working directory to the terragrunt S3 module
 	// Adjust this path to match your actual project structure
 	terragruntDir := "../terragrunt/environments/dev/s3-bucket"
-
+    
+	// Create a valid S3 bucket name: lowercase, no underscores, between 3-63 chars
+	bucketName := fmt.Sprintf("terratest-s3-%s", strings.ToLower(random.UniqueId()))
+	
 	// Set up Terraform options but use terragrunt as the binary
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: terragruntDir,
@@ -33,7 +36,7 @@ func TestTerragruntS3Bucket(t *testing.T) {
 		},
 		// Just set the critical variables, use existing tfvars for the rest
 		Vars: map[string]interface{}{
-			"bucket_name": fmt.Sprintf("%s-%s", bucketPrefix, random.UniqueId()),
+			"bucket_name": bucketName,
 			"owner": "terratest",
 		},
 	})
